@@ -48,5 +48,3 @@ if __name__ == '__main__':
     element = driver.find_elements_by_class_name("QueryResultsList")
     query_list = element[0].text.split("Profile:")
     get_name_company(query_list)
-
-    
