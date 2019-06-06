@@ -1,6 +1,8 @@
-import time, re, json
+import time, re, json, os
 import selenium.webdriver
 from selenium.webdriver.common.keys import Keys
+from google.cloud import bigquery
+import logging
 
 
 def get_company(company_string):
@@ -20,7 +22,7 @@ def get_company(company_string):
             return company[:stop_pos]
 
 
-def get_name_company(query_list):
+def get_founder_company(query_list):
     """
     Returns a dictionary that matches founder names with their companies.
     query_list: a list of user profile strings.
@@ -31,6 +33,61 @@ def get_name_company(query_list):
         if len(name_com) > 1:
             sample_db[name_com[0]] = get_company(name_com[1].split(" "))
     return sample_db
+
+
+def write_to_json(json_file, raw_list):
+    """
+    Write a raw list of dictionary to json file. 
+    Input:
+    json_file: the path of new json file.
+    raw_list: the name of the list to be transformed to json.
+    """
+    with open(json_file, 'w') as f:
+        for line in f:
+            f.writelines(json.dumps(line) + '\n')
+
+
+def send_to_bq(svc_key, table_id, schema_list, file_name, dataset_id, table_name):
+    """
+    Initiate bq client, gathers table schema, create a table, config bq job, and finally sends json file to bq table.
+    """
+    client = bigquery.Client.from_service_account_json(svc_key)
+    table_id = table_id
+
+    schema = schema_list
+
+    table = bigquery.Table(table_id, schema=schema)
+    table = client.create_table(table)
+
+    file_name = file_name
+    dataset_id = dataset_id
+    table_name = table_name
+
+    dataset_ref = client.dataset(dataset_id)
+    table_ref = dataset_ref.table(table_name)
+
+    schema_file_name = 'schema_temp.json'
+    os.system(f"generate-schema --keep_nulls < {file_name} > {schema_file_name}")
+
+    schema = open(schema_file_name, 'r').read()
+    job_config = bigquery.LoadJobConfig()
+    job_config.source_format = 'NEWLINE_DELIMITED_JSON'
+    job_config.autodetect = True
+    job_config.write_disposition = "WRITE_APPEND"
+    job_config.schema_update_options = 'ALLOW_FIELD_ADDITION'
+    job_config.ignore_unknown_values = True
+
+    with open(file_name, 'rb') as source_file:
+        job = client.load_table_from_file(
+            source_file,
+            table_ref,
+            job_config=job_config)  
+            
+    try:
+        job.result() 
+    except: 
+        log.info(job.errors)
+        job.result()
 
 
 if __name__ == '__main__':
@@ -47,4 +104,18 @@ if __name__ == '__main__':
     # find QueryResultsList which contains all profile summaries
     element = driver.find_elements_by_class_name("QueryResultsList")
     query_list = element[0].text.split("Profile:")
-    get_name_company(query_list)
+    get_founder_company(query_list)
+
+    write_to_json(json_file = 'company_quora.json', raw_list = get_founder_company(query_list))
+
+    send_to_bq(
+        svc_key =  "/Users/vicky/Dev/seraph_etl.json",
+        table_id = "pure-silicon-196123.seraph_v1.company_quora",
+        schema_list = [
+                bigquery.SchemaField("founder_name", "STRING", mode="Nullable"),
+                bigquery.SchemaField("company_name", "STRING", mode="Nullable"),
+            ],
+        file_name = 'company_quora.json',
+        dataset_id = 'seraph_v1',
+        table_name = 'company_quora'
+    )
