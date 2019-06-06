@@ -43,7 +43,7 @@ def write_to_json(json_file, raw_list):
     raw_list: the name of the list to be transformed to json.
     """
     with open(json_file, 'w') as f:
-        for line in f:
+        for line in get_founder_company(query_list):
             f.writelines(json.dumps(line) + '\n')
 
 
