@@ -6,7 +6,7 @@ https://docs.google.com/presentation/d/1EXkJ2VNcq-Z6hVikRcESQc6xSBycayqV6yfH9A-M
 
 Data Modelling:
 
-1. LinkedIn for management tenure, number of new hires timeseries, API: Talent Solutions (for new job postings, industry breakdown, etc), API: Consumer Solutions Platform (for tracking new management team, team member tenure and industry background), API: Organization Lookup API (under: `Marketing Developer Platform/Integrations/Community Management/Organizations & Brands`) (metrics: follow stats, share stats, page stats).  
+1. LinkedIn for management tenure, number of new hires timeseries, API: Talent Solutions (for new job postings, industry breakdown, etc), API: Consumer Solutions Platform (for tracking new management team, team member tenure and industry background), API: Organization Lookup API (under: `Marketing Developer Platform/Integrations/Community Management/Organizations & Brands`) (metrics: follow stats, share stats, page stats).  https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/follower-statisticss
 2. SEC EDGAR db: https://www.sec.gov/Archives/edgar/Feed/ and rss feeds;
 3. Quora crawler (founders + company names); 
 4. Twitter. Features include: Email domains, company type, website url, industries, status, twitter id, employee count range, locations, founded year, end year, number of followers and so on.
