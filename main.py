@@ -70,7 +70,7 @@ def airflow_handler(data, context):
     headers = {
         'Content-type': 'application/json',
     }  
-    slack_url = 'https://hooks.slack.com/services/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'
+    slack_url = 'https://hooks.slack.com/services/{slack_secret}'
 
     # getting blob metadata:
     client = storage.Client()
@@ -124,7 +124,7 @@ def airflow_handler(data, context):
             execTimestamp=alert_dict['exec_ts'],
             traceback=conv_alert_dict,
             severity='ERROR',
-            url = f"http://34.83.69.168:8080/admin/airflow/log?task_id={alert_dict['task_id']}&dag_id={alert_dict['dag_id']}&execution_date={log_array[2].replace(':', '%3A').replace('+', '%2B')}&format=json")
+            url = f"http://{airflow_external_ip}/admin/airflow/log?task_id={alert_dict['task_id']}&dag_id={alert_dict['dag_id']}&execution_date={log_array[2].replace(':', '%3A').replace('+', '%2B')}&format=json")
 
         t = Template('{"text": "{{pretty_msg}}"}')
         pretty_payload = t.render(pretty_msg=pretty_msg)
