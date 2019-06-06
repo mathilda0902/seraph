@@ -27,11 +27,11 @@ def get_founder_company(query_list):
     Returns a dictionary that matches founder names with their companies.
     query_list: a list of user profile strings.
     """
-    sample_db = {}
+    sample_db = []
     for name in query_list:
         name_com = name.replace('\n', ' ').split(', ')
         if len(name_com) > 1:
-            sample_db[name_com[0]] = get_company(name_com[1].split(" "))
+            sample_db.append({'founder_name': name_com[0][1:], 'company_name': get_company(name_com[1].split(" "))})
     return sample_db
 
 
@@ -83,11 +83,7 @@ def send_to_bq(svc_key, table_id, schema_list, file_name, dataset_id, table_name
             table_ref,
             job_config=job_config)  
             
-    try:
-        job.result() 
-    except: 
-        log.info(job.errors)
-        job.result()
+    print(job.result())
 
 
 if __name__ == '__main__':
@@ -119,3 +115,5 @@ if __name__ == '__main__':
         dataset_id = 'seraph_v1',
         table_name = 'company_quora'
     )
+    
+    driver.quit()
