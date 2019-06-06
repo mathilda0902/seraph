@@ -97,7 +97,7 @@ if __name__ == '__main__':
     print(driver.window_handles)
 
     # automate the scroll down action to handle infinite scroll
-    for i in range(1, 100):
+    for i in range(1, 1000):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(4)
 
